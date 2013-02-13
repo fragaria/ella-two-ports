@@ -50,7 +50,7 @@ def delete_cached_list(model, *args, **kwargs):
     cache.delete(key)
 
 
-def get_cached_list(model, *args, **kwargs):
+def get_cached_list(model, timeout=CACHE_TIMEOUT, *args, **kwargs):
     """
     Return a cached list. If the list does not exist in the cache, create it
     and register it for invalidation if any object from the list is updated (check via _get_pk_val()).
@@ -69,7 +69,7 @@ def get_cached_list(model, *args, **kwargs):
     if l is None:
         log.debug('get_cached_list(model=%s), object not cached.' % str(model))
         l = list(model._default_manager.filter(*args, **kwargs))
-        cache.set(key, l, CACHE_TIMEOUT)
+        cache.set(key, l, timeout)
         for o in l:
             CACHE_DELETER.register_pk(o, key)
         #CACHE_DELETER.register_test(model, lambda x: model._default_manager.filter(**kwargs).filter(pk=x._get_pk_val()) == 1, key)
